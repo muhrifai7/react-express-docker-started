@@ -1,0 +1,43 @@
+version: "3.8"
+
+services:
+  server:
+    container_name: "server_app"
+    build: ./server
+    volumes:
+      - ./server:/app
+      - /app/node_modules/
+    ports:
+      - 7000:7000
+    stdin_open: true
+    command: npm start
+    depends_on:
+      - db
+    networks:
+      - net-for-db
+
+  db:
+    image: postgres
+    container_name: db_app
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: admin
+      POSTGRES_DB: db_app
+    ports:
+      - 5432:5432
+
+  client:
+    container_name: "frontend_app"
+    build: ./client
+    volumes:
+      - ./client:/app
+      - ./client/node_modules:/app/node_modules
+    ports:
+      - 3000:3000
+    stdin_open: true
+    networks:
+      - net-for-db
+
+networks:
+  net-for-db:
